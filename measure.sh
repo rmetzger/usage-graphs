@@ -47,7 +47,9 @@ function probe_cpu {
 	#	-n 1 only one execution
 	#	-b batch mode (no curses interface)
 	#	-p <pid>
-	top -n 1 -b -p $1 | tail -n 1 | grep -o '[0-9]\+\.[0-9]' | head -n1
+#	top -n 1 -b -p $1 | tail -n 1 | grep -o '[0-9]\+\.[0-9]' | head -n1
+
+	cat /tmp/top.measure | grep $1 | tail -n 1 | tr -s [:space:] | cut --delimiter=' ' -f 10
 }
 
 function probe_io {
@@ -61,7 +63,9 @@ function probe_io {
 
 function end {
 	sudo kill $IOTOP_PID
+	kill $TOP_PID
 	rm /tmp/iotop.measure
+	# TODO delete top.measure
   	echo "Generating Plot"
   	../plot.sh $DST $DST "IO and CPU Results"
 }
@@ -75,19 +79,21 @@ echo "Starting measurement (Stop with CTRL+C)"
 sudo iotop -qqq --kilobytes --processes -d 1 --batch > /tmp/iotop.measure &
 IOTOP_PID=$!
 
-echo "iotop started with pid $IOTOP_PID"
+top -b -d 1 > /tmp/top.measure &
+TOP_PID=$!
+echo "iotop started with pid $IOTOP_PID, top started with pid $TOP_PID"
 
 
 TIME=0
 while [ true ]; do
+	sleep 1
 	CPU=$(probe_cpu $PID)
 	echo $TIME";"$CPU";"$(probe_io $PID) | tee -a $DST
 	
 	# detect when a process dies
-	if [ -z $CPU ] ; then
+	if [ -z `ps -p $PID -o comm=` ] ; then
 		break
 	fi
 	let TIME++
-	sleep 1
 done
 
