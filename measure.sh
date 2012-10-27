@@ -53,8 +53,10 @@ function probe_io {
 }
 
 function end {
-  echo "Ende und so"
+  echo "Generating Plot"
+  ./plot.sh $DST $DST".png" "IO and CPU Results"
 }
+
 # generate statistics when user quits loop!
 trap end EXIT
 
@@ -66,7 +68,7 @@ while [ true ]; do
 	CPU=$(probe_cpu $PID)
 	echo $TIME";"$CPU";"$(probe_io $PID) | tee -a $DST
 	
-	# detect when process dies
+	# detect when a process dies
 	if [ -z $CPU ] ; then
 		break
 	fi
