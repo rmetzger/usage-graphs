@@ -1,7 +1,7 @@
 set datafile separator ";"
 set ylabel "KB / S"
 set xlabel "Seconds"
-set title "DISK IO"
+set title "#TITLE#"
 
 set y2label "% CPU" tc lt 1
 set y2range [0:100]
@@ -16,7 +16,7 @@ set y2tics 10 nomirror tc lt 1
 set ytics nomirror
 
 set term png small size 800, 400
-set output "output.png"
+set output "#OUTPUT#.png"
 
 plot 	"#INPUT#" using 1:3 with linespoints ti "READ IO" ls 2,\
 		"#INPUT#" using 1:4 with linespoints ti "WRITE IO" ls 3 ,\

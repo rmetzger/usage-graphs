@@ -6,6 +6,7 @@
 ##
 
 
+
 PROG=$1
 DST=`date '+%s'`"-"$PROG".csv"
 
@@ -14,6 +15,11 @@ function usage {
 	echo "	measureCPU.sh <Pattern of process>"
 	exit 1
 }
+
+if [ ! -d "results" ]; then
+	mkdir results
+fi
+cd results
 
 if [ -z "$PROG" ]; then
 	usage
@@ -45,7 +51,8 @@ function probe_cpu {
 }
 
 function probe_io {
-	IOTOP_IN=`tail -n1 /tmp/iotop.measure | tr -s [:space:] `
+	# PID BASED IOTOP_IN=`tail -n1 /tmp/iotop.measure | tr -s [:space:] `
+	IOTOP_IN=`cat /tmp/iotop.measure | grep -v measure.sh | grep $PROG | tail -n1 | tr -s [:space:] `
 	# echo "++"$IOTOP_IN"++"
 	IO_READ=`echo $IOTOP_IN | cut -f 4 --delimiter=' '`
 	IO_WRITE=`echo $IOTOP_IN | cut -f 6 --delimiter=' '`
@@ -53,8 +60,10 @@ function probe_io {
 }
 
 function end {
-  echo "Generating Plot"
-  ./plot.sh $DST $DST".png" "IO and CPU Results"
+	sudo kill $IOTOP_PID
+	rm /tmp/iotop.measure
+  	echo "Generating Plot"
+  	../plot.sh $DST $DST "IO and CPU Results"
 }
 
 # generate statistics when user quits loop!
@@ -62,7 +71,13 @@ trap end EXIT
 
 echo "Starting measurement (Stop with CTRL+C)"
 # start iotop in background
-sudo iotop -qqq --kilobytes --processes -d 1 --batch -p $PID > /tmp/iotop.measure &
+# -p $PID 
+sudo iotop -qqq --kilobytes --processes -d 1 --batch > /tmp/iotop.measure &
+IOTOP_PID=$!
+
+echo "iotop started with pid $IOTOP_PID"
+
+
 TIME=0
 while [ true ]; do
 	CPU=$(probe_cpu $PID)
