@@ -5,7 +5,7 @@
 #  https://github.com/rmetzger
 ##
 
-
+# Possible extension: the output of top also contains the memory allocation in percent. It is simple to draw this into the chart
 
 PROG=$1
 DST=`date '+%s'`"-"$PROG".csv"
@@ -49,7 +49,7 @@ function probe_cpu {
 	#	-p <pid>
 #	top -n 1 -b -p $1 | tail -n 1 | grep -o '[0-9]\+\.[0-9]' | head -n1
 
-	cat /tmp/top.measure | grep $1 | tail -n 1 | tr -s [:space:] | cut --delimiter=' ' -f 10
+	cat /tmp/top.measure | grep $1 | tail -n 1 | tr -s [:space:] | cut --delimiter=' ' -f 9
 }
 
 function probe_io {
