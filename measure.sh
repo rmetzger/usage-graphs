@@ -48,8 +48,13 @@ function probe_cpu {
 	#	-b batch mode (no curses interface)
 	#	-p <pid>
 #	top -n 1 -b -p $1 | tail -n 1 | grep -o '[0-9]\+\.[0-9]' | head -n1
-
-	cat /tmp/top.measure | grep $1 | tail -n 1 | tr -s [:space:] | cut --delimiter=' ' -f 9
+# cat : output file
+# grep : find only the entries with the pid
+# tail: get last result of grep
+# sed: remove leading ' ' (only if pid is less than 5 digit)
+# tr: squeece (remove dupls of ' ')
+# cut: select n'th column
+	cat /tmp/top.measure | grep $1 | tail -n 1 | sed 's/^ *//' | tr -s [:space:] | cut --delimiter=' ' -f 9
 }
 
 function probe_io {

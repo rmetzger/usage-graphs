@@ -9,6 +9,8 @@ This code has only been tested on linux.
 
 	./measure.sh <string inside command>
 
+Make sure that "sudo" is allowed to execute "iotop"
+
 ### Requirements
 
 gnuplot
