@@ -4,7 +4,7 @@ set xlabel "Seconds"
 set title "#TITLE#"
 
 set y2label "% CPU" tc lt 1
-#set y2range [0:110]
+set y2range [0:110]
 
 
 

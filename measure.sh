@@ -88,10 +88,10 @@ top -b -d 1 > /tmp/top.measure &
 TOP_PID=$!
 echo "iotop started with pid $IOTOP_PID, top started with pid $TOP_PID"
 
-
+sleep 1
 TIME=0
 while [ true ]; do
-	sleep 1
+	STARTED=`date +%s%N`
 	CPU=$(probe_cpu $PID)
 	echo $TIME";"$CPU";"$(probe_io $PID) | tee -a $DST
 	
@@ -100,5 +100,9 @@ while [ true ]; do
 		break
 	fi
 	let TIME++
+	# the following segment calculates the time we need to sleep so that we measure every sec
+	NOW=`date +%s%N`
+	WAITFOR=`echo " scale = 10; (  ($NOW.0-1000000000.0 )-$STARTED.0 ) /1000000000.0" | bc | tr "-" "0"`
+	sleep $WAITFOR
 done
 
